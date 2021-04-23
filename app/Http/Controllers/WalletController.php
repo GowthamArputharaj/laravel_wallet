@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wallet;
+use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
@@ -14,17 +17,16 @@ class WalletController extends Controller
      */
     public function index()
     {
-        return view('wallet.index');
-    }
+        $auth_user = Auth::user();
+        $wallet = null;
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if($auth_user) {
+            $wallet = Wallet::where('user_id', $auth_user->id)->get();
+        } else {
+            $wallet = [];
+        }
+        
+        return view('wallet.index', compact('wallet'));
     }
 
     /**
@@ -35,29 +37,19 @@ class WalletController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Wallet $wallet)
-    {
-        //
-    }
+        $data = [
+            'user_id' => Auth::id(),
+            'amount' => $request->amount,
+            'remark' => $request->remark,
+            'type' => $request->type,
+            'date' => date($request->date),
+        ];
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Wallet $wallet)
-    {
-        //
+        $data['id'] = DB::table('wallets')->insertGetId($data);
+
+        return response(json_encode($data), 200);
+
     }
 
     /**
@@ -67,9 +59,20 @@ class WalletController extends Controller
      * @param  \App\Models\Wallet  $wallet
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Wallet $wallet)
+    public function update(Request $request, $id)
     {
-        //
+     
+        $data = [
+            'user_id' => Auth::id(),
+            'amount' => $request->amount,
+            'remark' => $request->remark,
+            'type' => $request->type,
+            'date' => date($request->date),
+        ];
+
+        $data['id'] = DB::table('wallets')->where('id', $request->id)->update($data);
+
+        return response(json_encode($data), 200);
     }
 
     /**
@@ -78,8 +81,11 @@ class WalletController extends Controller
      * @param  \App\Models\Wallet  $wallet
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Wallet $wallet)
+    public function destroy($id)
     {
-        //
+
+        Wallet::where(['user_id' => Auth::id(), 'id' => $id])->delete();
+
+        return response(json_encode(['id' => $id]), 200);
     }
 }

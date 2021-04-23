@@ -18,6 +18,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
-Route::get('/wallet', [WalletController::class, 'index']);
+require __DIR__.'/auth.php';
+
+
+Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
+
+Route::put('/wallet/{id}', [WalletController::class, 'update']);
+
+Route::post('/wallet', [WalletController::class, 'store']);
+
+Route::get('/wallet/{id}', [WalletController::class, 'show']);
+
+Route::delete('/wallet/{id}', [WalletController::class, 'destroy']);
+
+
 
