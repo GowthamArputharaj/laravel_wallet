@@ -42,7 +42,7 @@
                             {{-- Last Row Total  --}}
                             <tr class="bg-green-200">
                                 <th scope="row"></th>
-                                <td>Total Amount</td>
+                                <td>Amount in wallet</td>
                                 <td><span v-bind:value="total_amount">@{{total_amount}}$</span></td>
                                 <td></td>
                                 <td></td>
